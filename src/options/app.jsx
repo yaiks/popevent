@@ -1,10 +1,7 @@
-import { Logo } from './logo'
-
 export function App(props) {
   return (
     <>
-      <Logo />
-      <p>Hello Vite + Preact!</p>
+      <h1>Options Page</h1>
       <p>
         <a
           class="link"

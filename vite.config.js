@@ -5,12 +5,10 @@ import fse from 'fs-extra'
 
 const r = path => resolve(__dirname, path)
 
-const extensionDist = 'dist'
-
 const getEntryFileNames = chunkName => {
   if (chunkName === 'background' || chunkName === 'content') return `[name].js`;
 
-  return `${extensionDist}/assets/[name].js`;
+  return `assets/[name].js`;
 }
 
 // https://vitejs.dev/config/
@@ -29,19 +27,24 @@ export default defineConfig({
       },
       output: {
         entryFileNames: chunkInfo => getEntryFileNames(chunkInfo.name),
-        chunkFileNames: `${extensionDist}/assets/[name].js`,
-        assetFileNames: `${extensionDist}/assets/[name].[ext]`
+        chunkFileNames: `assets/[name].js`,
+        assetFileNames: `assets/[name].[ext]`
       }
     },
   },
   plugins: [
     preact(),
     {
-      name: 'rollup-plugin-copy-manifest',
+      name: 'rollup-plugin-copy-assets',
       buildEnd() {
         fse.copy('src/manifest.json', 'extension/manifest.json', err => {
           if (err) throw err;
           console.log('Manifest file copied sucessfuly!')
+        })
+
+        fse.copy('src/images', 'extension/images', err => {
+          if (err) throw err;
+          console.log('Images folder copied sucessfuly!')
         })
       }
     }
