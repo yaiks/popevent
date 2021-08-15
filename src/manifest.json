@@ -6,8 +6,15 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "webRequest"],
+  "permissions": ["storage", "webRequest", "webNavigation"],
   "host_permissions": ["*://*/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "run_at": "document_start",
+      "js": ["content.js"]
+    }
+  ],
   "action": {
     "default_popup": "./popup/index.html",
     "default_icon": {

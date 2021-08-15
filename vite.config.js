@@ -21,9 +21,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: r('src/popup/index.html'),
-        options: r('src/options/index.html'),
         background: r('src/background'),
-        content: r('src/content')
+        content: r('src/content'),
       },
       output: {
         entryFileNames: chunkInfo => getEntryFileNames(chunkInfo.name),

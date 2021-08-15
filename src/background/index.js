@@ -17,8 +17,23 @@ const glossary = {
   }
 };
 
-chrome.storage.local.clear(function() {
-  console.log('cleared storage sucessfully!')
+// chrome.webNavigation.onCommitted.addListener((details) => {
+//   if (["reload"].includes(details.transitionType)) {
+//     console.log('ON PAGE RELOAD, LOAD OR REFRESH')
+//     chrome.storage.sync.clear(function() {
+//       console.log('cleared storage sucessfully!')
+//     })
+//   }
+// });
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  console.log('LISTENING TO MESSAGE FROM CONTENT SCRIPT')
+
+  if (request.reload) {
+    chrome.storage.sync.clear(function() {
+      console.log('cleared storage sucessfully!')
+    })
+  }
 })
 
 chrome.webRequest.onBeforeRequest.addListener(function ({ method, requestBody, url }) {
@@ -37,15 +52,15 @@ chrome.webRequest.onBeforeRequest.addListener(function ({ method, requestBody, u
 
     console.log('segment POST request incoming!')
 
-    chrome.storage.local.get(hostname, function(data) {
+    chrome.storage.sync.get(hostname, function(data) {
       console.log('current storage', data)
 
       if (data[hostname]) {
-        chrome.storage.local.set({ [hostname]: { ...data[hostname], calls: data[hostname].calls + 1 }}, function() {
+        chrome.storage.sync.set({ [hostname]: { ...data[hostname], calls: data[hostname].calls + 1 }}, function() {
           console.log(`successfuly updated data for ${hostname}`);
         })
       } else {
-        chrome.storage.local.set({ [hostname]: glossary[hostname]}, function() {
+        chrome.storage.sync.set({ [hostname]: glossary[hostname]}, function() {
           console.log(`successfuly set new data for ${hostname}`);
         })
       }

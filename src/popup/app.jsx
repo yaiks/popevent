@@ -1,22 +1,22 @@
+import { useState, useEffect } from 'preact/hooks';
 import { Logo } from './logo'
 
 export function App(props) {
-  // chrome.storage.onChanged.addListener(changes => {
-  //   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-  //     app.innerHTML = `
-  //       <p>${key} - ${newValue.calls}</p>
-  //     `
-  //   }
-  // });
+  const [calls, setCalls] = useState(0)
+
+  chrome.storage.onChanged.addListener(changes => {
+    for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+      console.log('INSIDE STORAGE LISTENER', newValue)
+      setCalls(newValue.calls);
+    }
+  });
   
-  // chrome.storage.local.get(null, data => {
-  //   console.log('storage data in popup', data)
-  //   for (const url in data) {
-  //     app.innerHTML = `
-  //       <p>${url} - ${data[url].calls}</p>
-  //     `
-  //   }
-  // });
+  chrome.storage.sync.get(null, data => {
+    console.log('STORAGE DATA', data);
+    for (const url in data) {
+      setCalls(data[url].calls)
+    }
+  });
 
   return (
     <>
@@ -32,6 +32,7 @@ export function App(props) {
           Learn Preact
         </a>
       </p>
+      <h2>calls: {calls}</h2>
     </>
   )
 }
