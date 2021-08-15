@@ -6,7 +6,6 @@
   "background": {
     "service_worker": "background.js"
   },
-  "options_page": "./options/index.html",
   "permissions": ["storage", "webRequest"],
   "host_permissions": ["*://*/*"],
   "action": {
