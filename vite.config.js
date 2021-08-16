@@ -41,6 +41,12 @@ export default defineConfig({
           console.log('Manifest file copied sucessfuly!')
         })
 
+        // temporary
+        fse.copy('src/mock.json', 'extension/mock.json', err => {
+          if (err) throw err;
+          console.log('Mock file copied sucessfuly!')
+        })
+
         fse.copy('src/images', 'extension/images', err => {
           if (err) throw err;
           console.log('Images folder copied sucessfuly!')

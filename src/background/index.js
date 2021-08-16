@@ -8,19 +8,10 @@
   '*://*.google-analytics.com/*'
 ]
 
-const glossary = {
-  'api.segment.io': {
-    calls: 1
-  },
-  'google-analytics.com': {
-    calls: 1
-  }
-};
-
 // chrome.webNavigation.onCommitted.addListener((details) => {
 //   if (["reload"].includes(details.transitionType)) {
 //     console.log('ON PAGE RELOAD, LOAD OR REFRESH')
-//     chrome.storage.sync.clear(function() {
+//     chrome.storage.local.clear(function() {
 //       console.log('cleared storage sucessfully!')
 //     })
 //   }
@@ -30,39 +21,33 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   console.log('LISTENING TO MESSAGE FROM CONTENT SCRIPT')
 
   if (request.reload) {
-    chrome.storage.sync.clear(function() {
+    chrome.storage.local.clear(function() {
       console.log('cleared storage sucessfully!')
     })
   }
 })
 
 chrome.webRequest.onBeforeRequest.addListener(function ({ method, requestBody, url }) {
-  // get url hostname
   const urlObject = new URL(url);
   const hostname = urlObject.hostname;
+  const path = urlObject.pathname;
+  const query = urlObject.search;
 
   // if method GET and gif or img for pixel
   // then parse request and send message to popup to show pixels
 
   if (method === "POST") {
-    // var string = new TextDecoder().decode(requestBody.raw[0].bytes);
-    // console.log('requestBody.formData', requestBody.formData);
-    // console.log('\n');
-    // console.log('string', string);
+    const body = requestBody.formData ? request.formData : new TextDecoder().decode(requestBody.raw[0].bytes);
 
-    console.log('segment POST request incoming!')
+    chrome.storage.local.get(hostname, function(data = {}) {
+      const hasPropertyInStore = data.hasOwnProperty(hostname)
 
-    chrome.storage.sync.get(hostname, function(data) {
-      console.log('current storage', data)
-
-      if (data[hostname]) {
-        chrome.storage.sync.set({ [hostname]: { ...data[hostname], calls: data[hostname].calls + 1 }}, function() {
-          console.log(`successfuly updated data for ${hostname}`);
-        })
+      if (hasPropertyInStore) {
+        const newData = [ ...data[hostname], { path, query, body } ]
+        chrome.storage.local.set({ [hostname]: newData }, () => console.log(`updated data for ${hostname}`))
       } else {
-        chrome.storage.sync.set({ [hostname]: glossary[hostname]}, function() {
-          console.log(`successfuly set new data for ${hostname}`);
-        })
+        const firstData = { path, query, body };
+        chrome.storage.local.set({ [hostname]: [firstData]}, () => console.log(`set new data for ${hostname}`))
       }
     })
 
@@ -70,20 +55,17 @@ chrome.webRequest.onBeforeRequest.addListener(function ({ method, requestBody, u
 
     // if domain matches glossary (analytics, segment, gtm...)
     // parse data for each domain, to result in the following structure
-    
+
     /**
-     * [
-     *  { 
-     *    name: "google-analytics",
-     *    calls: [
-     *      { path: "/track", query: [], body: [] }
+     * {
+     *    "segment": [
+     *      { path: "/", query: [], body: [] },
+     *      { path: "/track", query: [], body: [] },
+     *    ],
+     *    "analytics": [
+     *      { path: "/", query: [], body: [] }
      *    ]
-     *  },
-     *  {
-     *    name: "segment",
-     *    calls: [...]
-     *  }
-     * ]
+     * }
      * 
      */
 
