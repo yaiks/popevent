@@ -1,6 +1,6 @@
 {
-  "name": "preact-webext",
-  "description": "Preact based browser extension boilerplate",
+  "name": "popevent",
+  "description": "Preact based browser extension",
   "version": "0.0.1",
   "manifest_version": 3,
   "background": {

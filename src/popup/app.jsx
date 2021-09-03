@@ -1,26 +1,25 @@
-import { Logo } from './logo'
+import { useState, useEffect } from "preact/hooks"
 
 export function App(props) {
+  const [data, setData] = useState([])
+
+  useEffect(() => {
+    chrome.storage.local.get(null, data => {
+      console.log('storage data in popup', data)
+      for (const url in data) {
+        setData(curData => [...curData, `${url} - ${data[url].calls}`])
+      }
+    });
+  }, [])
+
   // chrome.storage.onChanged.addListener(changes => {
   //   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-  //     app.innerHTML = `
-  //       <p>${key} - ${newValue.calls}</p>
-  //     `
-  //   }
-  // });
-  
-  // chrome.storage.local.get(null, data => {
-  //   console.log('storage data in popup', data)
-  //   for (const url in data) {
-  //     app.innerHTML = `
-  //       <p>${url} - ${data[url].calls}</p>
-  //     `
+  //     setData(curData => [...curData, `${key} - ${newValue.calls}`])
   //   }
   // });
 
   return (
     <>
-      <Logo />
       <p>Hello Vite + Preact!</p>
       <p>
         <a
@@ -32,6 +31,9 @@ export function App(props) {
           Learn Preact
         </a>
       </p>
+      {data.map(each => (
+        <div>{each}</div>
+      ))}
     </>
   )
 }
